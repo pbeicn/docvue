@@ -23,13 +23,7 @@
       </div>
       <div class="recent">
         <div class="incontent">
-          <a-card
-            title
-            :bordered="true"
-            v-for="(recent,index) in recents"
-            :key="index"
-            :class="index===0?'css1':'css2'"
-          >
+          <a-card title :bordered="true" v-for="(recent, index) in recents" :key="index" :class="index === 0 ? 'css1' : 'css2'">
             <div>
               <div>
                 {{ recent.docname }}
@@ -55,13 +49,7 @@
           <div style="text-align:left">
             <a-tabs defaultActiveKey="1">
               <a-tab-pane tab="处方" key="1">
-                <a-table
-                  :columns="columns"
-                  :dataSource="recipedata"
-                  :rowKey="recipedata.key"
-                  :pagination="pagination"
-                  :loading="loading"
-                >
+                <a-table :columns="columns" :dataSource="recipedata" :rowKey="recipedata.key" :pagination="pagination" :loading="loading">
                   <template slot="money" slot-scope="text">￥{{ text }}</template>
                   <template slot="allmoney" slot-scope="text">￥{{ text }}</template>
                 </a-table>
@@ -79,13 +67,7 @@
             <a-tabs defaultActiveKey="1">
               <a-tab-pane tab="检查" key="1">
                 <div class="checkcss">
-                  <a-card
-                    title
-                    :bordered="true"
-                    class="css1"
-                    v-for="(checks,index) in checkdtos"
-                    :key="index"
-                  >
+                  <a-card title :bordered="true" class="css1" v-for="(checks, index) in checkdtos" :key="index">
                     <div>
                       <img src="@/assets/c1.png" />
                       <div class="text">项目名称：{{ checks.description }}(费用:￥{{ checks.money }})</div>
@@ -96,7 +78,7 @@
                     </div>
                     <div>
                       <img src="@/assets/c3.png" />
-                      <div class="text">检查时间：{{checks.patientage}}</div>
+                      <div class="text">检查时间：{{ checks.patientage }}</div>
                     </div>
                   </a-card>
                 </div>
@@ -272,9 +254,9 @@ export default {
           window.console.log(res);
         });
       this.$ajax
-        .post("/api/v1/diagnose", {
-          params: "1",
+        .post("/api/v1/diagnose", null, {
           headers: {
+            "Content-Type": "application/json",
             "X-CARD-CODE": this.xcode
           }
         })
