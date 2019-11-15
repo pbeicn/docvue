@@ -30,8 +30,8 @@
       <div class="right">
         <div class="top">
           <div class="header">
-            <div class="title">患者信息</div>
-            <div class="info" v-if="currentPatient">
+            <div class="title">患者信息：</div>
+            <div class="title" v-if="currentPatient">
               {{ currentPatient.name }}({{ currentPatient.idcard }})
               {{ currentPatient.sex }}
               {{ currentPatient.age }}
@@ -97,10 +97,16 @@ export default {
       currentPatient: {},
       visible: false,
       iswhich: "1",
-      addText: "新增处方"
+      addText: "新增处方",
+      tipinfo: ""
     };
   },
   created() {
+    this.currentPatient.name = sessionStorage.getItem("patientname");
+    this.currentPatient.idcard = sessionStorage.getItem("patientidcard");
+    this.currentPatient.sex = sessionStorage.getItem("patientsex");
+    this.currentPatient.age = sessionStorage.getItem("patientage");
+    window.console.log(this.currentPatient.name);
     this.getDoctorAndPatients();
     setInterval(() => {
       this.getDoctorAndPatients();
@@ -129,26 +135,7 @@ export default {
   },
   methods: {
     postRecipe(val) {
-      alert("postRecipe");
       window.console.log(val);
-      // const config = {
-      //   url: `api/v1/diagnose/${this.diagnoseId}/recipe`,
-      //   headers: {
-      //     "X-CARD-CODE": this.patientCardQRCode
-      //   },
-      //   data: {
-      //     medicine: val
-      //   }
-      // };
-      // postWithAuth(config)
-      //   .then(res => {
-      //     debug.log("医生提交处方信息成功", res);
-      //     this.$message.success("提交处方信息成功");
-      //   })
-      //   .catch(err => {
-      //     debug.error("医生提交处方信息失败", err);
-      //     this.$message.error("提交处方信息失败");
-      //   });
     },
     delrecipe() {
       if (this.iswhich === "1") {
@@ -156,36 +143,84 @@ export default {
       }
     },
     postCheck1() {
+      // let that = this;
+      //保存处方
       if (this.iswhich === "1") {
         window.console.log(this.$refs.recipe.tableData);
-      } else {
-        window.console.log(this.$refs.check.tableData);
+        let drugDTO = new Object();
+        drugDTO.aka130 = "11";
+        drugDTO.department = "呼吸内科";
+        drugDTO.diagnosecode = "77";
+        drugDTO.patientAge = sessionStorage.getItem("patientage");
+        drugDTO.patientIdcard = sessionStorage.getItem("patientidcard");
+        drugDTO.patientName = sessionStorage.getItem("patientname");
+        drugDTO.patientSex = sessionStorage.getItem("patientsex");
+        drugDTO.medicine = this.$refs.recipe.tableData;
+        this.$ajax
+          .post(
+            "/api/v1/diagnose/" + sessionStorage.getItem("pid") + "/recipe",
+            drugDTO,
+            {
+              headers: {
+                "X-CARD-CODE": sessionStorage.getItem("xcode")
+              }
+            }
+          )
+          .then(res => {
+            window.console.log(res);
+            this.tipinfo = "处方增加成功";
+            this.success();
+          })
+          .catch(res => {
+            window.console.log(res.response.data + "CCCCCCCCCCCCCCCCCCC");
+            this.tipinfo = "处方增加失败,原因:" + res.response.data.message;
+            this.error();
+          });
       }
-      // const config = {
-      //   url: `api/v1/diagnose/${this.diagnoseId}/check`,
-      //   headers: {
-      //     "X-CARD-CODE": this.patientCardQRCode
-      //   },
-      //   data: val
-      // };
-      // postWithAuth(config)
-      //   .then(res => {
-      //     debug.log("医生提交检查信息成功", res);
-      //     this.$message.success("提交检查信息成功");
-      //   })
-      //   .catch(err => {
-      //     debug.error("医生提交检查信息失败", err);
-      //     this.$message.error("提交检查信息失败");
-      //   });
+      //保存检查
+      else {
+        window.console.log(this.$refs.check.tableData);
+        let chinfos = this.$refs.check.tableData.map(item => {
+          return {
+            aka130: "11",
+            department: item.department,
+            description: item.description,
+            money: item.money,
+            diagnosecode: item.diagnosecode,
+            patientage: sessionStorage.getItem("patientage"),
+            patientidcard: sessionStorage.getItem("patientidcard"),
+            patientname: sessionStorage.getItem("patientname"),
+            patientsex: sessionStorage.getItem("patientsex"),
+            result: "测试"
+          };
+        });
+        this.$ajax
+          .post(
+            "/api/v1/diagnose/" + sessionStorage.getItem("pid") + "/check",
+            chinfos,
+            {
+              headers: {
+                "X-CARD-CODE": sessionStorage.getItem("xcode")
+              }
+            }
+          )
+          .then(res => {
+            window.console.log(res);
+            this.tipinfo = "检查增加成功";
+            this.success();
+          })
+          .catch(res => {
+            this.tipinfo = "检查增加失败,原因:" + res.response.data.message;
+            this.error();
+          })
+          .then(function() {
+            window.console.log("finish");
+          });
+      }
     },
     callback(key) {
       window.console.log(key);
       this.iswhich = key;
-      // if (key === "1") {
-      //   this.addText = "新增处方";
-      // } else {
-      //   this.addText = "新增检查";
-      // }
     },
     getDoctorAndPatients() {
       this.$ajax
@@ -202,7 +237,6 @@ export default {
         });
     },
     showDrawer() {
-      // this.visible = true;
       if (this.iswhich === "1") {
         this.$refs.recipe.onDrawerVisible();
       } else {
@@ -228,13 +262,14 @@ export default {
         )
         .then(res => {
           window.console.log(res);
+          this.tipinfo = "保存诊断成功";
+          this.success();
         })
         .catch(res => {
           window.console.log(res);
         });
     },
     finishDiagnoseInfo() {
-      alert(1);
       this.$ajax
         .post("/api/v1/diagnose/" + sessionStorage.getItem("pid"), null, {
           headers: {
@@ -243,10 +278,24 @@ export default {
         })
         .then(res => {
           window.console.log(res);
+          this.tipinfo = "结束诊断成功";
+          this.success();
         })
         .catch(res => {
           window.console.log(res);
         });
+    },
+    success() {
+      this.$success({
+        title: "成功提示",
+        content: this.tipinfo
+      });
+    },
+    error() {
+      this.$error({
+        title: "错误提示",
+        content: this.tipinfo
+      });
     }
   },
   destroyed() {

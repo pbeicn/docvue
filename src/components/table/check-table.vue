@@ -135,6 +135,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           values["diagnosecode"] = new Date().getTime();
+          values["id"] = new Date().getTime();
           this.tableData.push(values);
           this.onDrawerInvisible();
           this.form.resetFields();

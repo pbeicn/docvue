@@ -188,13 +188,6 @@ export default {
     this.getDoctorAndPatients();
   },
   computed: {
-    // whichcolor: function() {
-    //   alert(this.patients.name);
-    //   if (this.patients.length == 1) {
-    //     return "1";
-    //   }
-    //   return "patient";
-    // }
   },
   watch: {
     recipedata(newValue) {
@@ -211,16 +204,6 @@ export default {
       });
       this.checkamount = amount.toFixed(2);
     }
-    // patients: {
-    //   handler(newValue, oldValue) {
-    //     for (let i = 0; i < newValue.length; i++) {
-    //       if (oldValue[i] != newValue[i]) {
-    //         window.console.log(newValue);
-    //       }
-    //     }
-    //   },
-    //   deep: true
-    // }
   },
   methods: {
     getDoctorAndPatients() {
@@ -272,7 +255,6 @@ export default {
             this.checkdtos = res.data[0].checkDTOS;
             this.getSingleMoney(res.data[0].recipe.medicine);
           }
-          //   this.recipedata = res.data.list[0].recipe.medicine;
         })
         .catch(res => {
           window.console.log(res);
@@ -288,9 +270,14 @@ export default {
           window.console.log(res);
           this.patient = res.data;
           sessionStorage.setItem("pid", this.patient.id);
+          sessionStorage.setItem("patientage", this.patient.patientage);
+          sessionStorage.setItem("patientidcard", this.patient.patientidcard);
+          sessionStorage.setItem("patientname", this.patient.patientname);
+          sessionStorage.setItem("patientsex", this.patient.patientsex);
           sessionStorage.setItem("xcode", this.xcode);
           window.console.log(sessionStorage.getItem("pid"));
           window.console.log(sessionStorage.getItem("xcode"));
+          window.console.log(sessionStorage.getItem("patientname"));
         })
         .catch(res => {
           window.console.log(res);
@@ -299,7 +286,7 @@ export default {
     getSingleMoney(colsss) {
       for (let i = 0; i < colsss.length; i++) {
         const element = colsss[i];
-         element.key = "key" + i;
+        element.key = "key" + i;
         element.allmoney = (element.medicinecnt * element.money).toFixed(2);
       }
       this.recipedata = colsss;

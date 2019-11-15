@@ -46,6 +46,7 @@ export default {
   },
   methods: {
     toLogin() {
+      sessionStorage.clear();
       this.$ajax
         .post("/oauth/token", this.$qs.stringify(this.logininfo))
         .then(res => {
