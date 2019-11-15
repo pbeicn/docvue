@@ -49,8 +49,12 @@
             </div>
           </div>
           <div class="btns">
-            <button class="button1" style="margin-right: 15px;">保存诊断</button>
-            <button class="button2" style="border:1px solid #0090FF;color:#0090FF">结束诊断</button>
+            <button class="button1" style="margin-right: 15px;" @click="saveDiagnoseInfo">保存诊断</button>
+            <button
+              class="button2"
+              style="border:1px solid #0090FF;color:#0090FF"
+              @click="finishDiagnoseInfo"
+            >结束诊断</button>
             <button class="button3" style="margin-left: 15px;" @click="toSaoMa">开新诊断</button>
           </div>
         </div>
@@ -213,7 +217,40 @@ export default {
     },
     toSaoMa() {
       this.$router.push("/saoma");
+    },
+    saveDiagnoseInfo() {
+      this.$ajax
+        .post(
+          "/api/v1/diagnose/" +
+            sessionStorage.getItem("pid") +
+            "/info?information=" +
+            this.diagnoseInfo
+        )
+        .then(res => {
+          window.console.log(res);
+        })
+        .catch(res => {
+          window.console.log(res);
+        });
+    },
+    finishDiagnoseInfo() {
+      alert(1);
+      this.$ajax
+        .post("/api/v1/diagnose/" + sessionStorage.getItem("pid"), null, {
+          headers: {
+            "X-CARD-CODE": sessionStorage.getItem("xcode")
+          }
+        })
+        .then(res => {
+          window.console.log(res);
+        })
+        .catch(res => {
+          window.console.log(res);
+        });
     }
+  },
+  destroyed() {
+    clearInterval();
   }
 };
 </script>

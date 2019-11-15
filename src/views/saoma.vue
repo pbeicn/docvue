@@ -3,9 +3,12 @@
     <DoctorHeader :department="department" :name="name"></DoctorHeader>
     <div class="main_content">
       <div class="patient">
-        <div class="pname">王小二</div>
-        <div class="pname">男</div>
-        <div class="pname">34岁</div>
+        <div class="pname">{{ patient.patientname }}</div>
+        <div class="pname">{{ patient.patientsex }}</div>
+        <div class="pname">
+          {{ patient.patientage }}
+          <span v-if="patient.patientage">岁</span>
+        </div>
       </div>
       <div class="saoma">
         <div>
@@ -18,12 +21,18 @@
           <a-button type="primary" @click="getRecentDiagnose">读卡</a-button>
         </div>
         <div class="pname">
-          <a-button type="primary">录入诊断</a-button>
+          <a-button type="primary" @click="toMain">录入诊断</a-button>
         </div>
       </div>
       <div class="recent">
         <div class="incontent">
-          <a-card title :bordered="true" v-for="(recent, index) in recents" :key="index" :class="index === 0 ? 'css1' : 'css2'">
+          <a-card
+            title
+            :bordered="true"
+            v-for="(recent, index) in recents"
+            :key="index"
+            :class="index === 0 ? 'css1' : 'css2'"
+          >
             <div>
               <div>
                 {{ recent.docname }}
@@ -49,7 +58,13 @@
           <div style="text-align:left">
             <a-tabs defaultActiveKey="1">
               <a-tab-pane tab="处方" key="1">
-                <a-table :columns="columns" :dataSource="recipedata" :rowKey="recipedata.key" :pagination="pagination" :loading="loading">
+                <a-table
+                  :columns="columns"
+                  :dataSource="recipedata"
+                  :rowKey="recipedata.key"
+                  :pagination="pagination"
+                  :loading="loading"
+                >
                   <template slot="money" slot-scope="text">￥{{ text }}</template>
                   <template slot="allmoney" slot-scope="text">￥{{ text }}</template>
                 </a-table>
@@ -67,7 +82,13 @@
             <a-tabs defaultActiveKey="1">
               <a-tab-pane tab="检查" key="1">
                 <div class="checkcss">
-                  <a-card title :bordered="true" class="css1" v-for="(checks, index) in checkdtos" :key="index">
+                  <a-card
+                    title
+                    :bordered="true"
+                    class="css1"
+                    v-for="(checks, index) in checkdtos"
+                    :key="index"
+                  >
                     <div>
                       <img src="@/assets/c1.png" />
                       <div class="text">项目名称：{{ checks.description }}(费用:￥{{ checks.money }})</div>
@@ -148,6 +169,7 @@ export default {
   components: { DoctorHeader },
   data() {
     return {
+      patient: {},
       name: "",
       department: "",
       recents: [],
@@ -246,8 +268,10 @@ export default {
         .then(res => {
           window.console.log(res);
           this.recents = res.data;
-          this.checkdtos = res.data[0].checkDTOS;
-          this.getSingleMoney(res.data[0].recipe.medicine);
+          if (this.recents.length > 0) {
+            this.checkdtos = res.data[0].checkDTOS;
+            this.getSingleMoney(res.data[0].recipe.medicine);
+          }
           //   this.recipedata = res.data.list[0].recipe.medicine;
         })
         .catch(res => {
@@ -262,6 +286,11 @@ export default {
         })
         .then(res => {
           window.console.log(res);
+          this.patient = res.data;
+          sessionStorage.setItem("pid", this.patient.id);
+          sessionStorage.setItem("xcode", this.xcode);
+          window.console.log(sessionStorage.getItem("pid"));
+          window.console.log(sessionStorage.getItem("xcode"));
         })
         .catch(res => {
           window.console.log(res);
@@ -270,6 +299,7 @@ export default {
     getSingleMoney(colsss) {
       for (let i = 0; i < colsss.length; i++) {
         const element = colsss[i];
+         element.key = "key" + i;
         element.allmoney = (element.medicinecnt * element.money).toFixed(2);
       }
       this.recipedata = colsss;
@@ -294,6 +324,9 @@ export default {
         title: "错误提示",
         content: this.tipinfo
       });
+    },
+    toMain() {
+      this.$router.push("/main");
     }
   }
 };
