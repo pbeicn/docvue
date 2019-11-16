@@ -98,7 +98,8 @@ export default {
       visible: false,
       iswhich: "1",
       addText: "新增处方",
-      tipinfo: ""
+      tipinfo: "",
+      timer: null
     };
   },
   created() {
@@ -108,7 +109,7 @@ export default {
     this.currentPatient.age = sessionStorage.getItem("patientage");
     window.console.log(this.currentPatient.name);
     this.getDoctorAndPatients();
-    setInterval(() => {
+    this.timer = setInterval(() => {
       this.getDoctorAndPatients();
     }, 10000);
   },
@@ -299,7 +300,7 @@ export default {
     }
   },
   destroyed() {
-    clearInterval();
+    clearInterval(this.timer);
   }
 };
 </script>
